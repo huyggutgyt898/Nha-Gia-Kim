@@ -203,6 +203,7 @@ body {
 
 .shop-cart-link {
   margin-left: auto;
+  flex: 0 0 auto;
   min-height: 42px;
   display: inline-flex;
   align-items: center;
@@ -214,6 +215,7 @@ body {
   color: var(--catalog-ink);
   font: inherit;
   font-size: 14px;
+  white-space: nowrap;
   cursor: pointer;
 }
 

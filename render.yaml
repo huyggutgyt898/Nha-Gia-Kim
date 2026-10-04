@@ -18,3 +18,7 @@ services:
         value: "10000"
       - key: ConnectionStrings__DefaultConnection
         sync: false
+      - key: Admin__InitialUsername
+        value: admin
+      - key: Admin__InitialPassword
+        sync: false

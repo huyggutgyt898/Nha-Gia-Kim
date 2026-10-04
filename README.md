@@ -12,7 +12,7 @@ Render runs the existing ASP.NET application from the Linux Dockerfile. The SQL 
 2. Push this repository to GitHub, then in Render choose **New + → Blueprint** and select the repository. Render reads `render.yaml`; choose the free web service if prompted.
 3. When asked for `ConnectionStrings__DefaultConnection`, enter the production SQL Server connection string as a secret. Do not commit it to Git or send it in chat.
 4. Create the Blueprint. Render builds the Docker image and runs EF Core migrations during startup. Wait until the service is **Live**, then open its `onrender.com` URL.
-5. In the service's **Environment** settings, add `Admin__InitialUsername`, `Admin__InitialPassword` (at least 12 characters), and `Admin__InitialFullName` if the database does not already contain an administrator. Save changes to redeploy. Add `Email__Smtp__...` variables there if order confirmation email is required.
+5. In the service's **Environment** settings, set `Admin__InitialPassword` to a strong password of at least 12 characters if the database does not already contain an administrator. `Admin__InitialUsername` defaults to `admin`; the app only creates this account when the `Users` table is empty and does not reset an existing account. Keep the password in Render's secret environment settings, never in source control or chat. Save changes to redeploy. Add `Email__Smtp__...` variables there if order confirmation email is required.
 
 The included `free` plan may spin down after inactivity and take time to respond to the first request. Render's plan availability and limits can change; check its current pricing before deploying. The app applies database migrations on startup, so back up and review any production database before the first deploy. Keep credentials in Render's environment settings.
 
@@ -98,7 +98,7 @@ $env:Admin__InitialPassword = "<at least 12 characters>"
 $env:Admin__InitialFullName = "Store administrator"
 ```
 
-Alternatively, use `dotnet user-secrets set "Admin:InitialUsername" "store-admin"` and `dotnet user-secrets set "Admin:InitialPassword" "<at least 12 characters>"` from the project directory. The password is stored as a password hash. Once the first user exists, changing the bootstrap settings does not change existing credentials. If there is no configured account, the app logs a warning and leaves the login unavailable until settings are supplied.
+For Render, `Admin__InitialUsername` is preconfigured as `admin`; set `Admin__InitialPassword` directly in the service's **Environment** settings to a strong password of at least 12 characters. Alternatively, use `dotnet user-secrets set "Admin:InitialUsername" "admin"` and `dotnet user-secrets set "Admin:InitialPassword" "<at least 12 characters>"` from the project directory. The password is stored as a password hash. Bootstrap runs only when the `Users` table is empty; changing these settings does not change existing credentials. If an administrator already exists, use the existing account or an authorized password-reset procedure. If there is no configured account, the app logs a warning and leaves the login unavailable until settings are supplied.
 
 The app applies EF Core migrations at startup. Back up the database and review the migration before deploying it to a database with existing data. Keep the administrator password in a secret store in production.
 
