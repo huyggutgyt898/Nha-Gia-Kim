@@ -1,0 +1,22 @@
+services:
+  bookstore:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection:?Set ConnectionStrings__DefaultConnection in .env}
+      Admin__InitialUsername: ${Admin__InitialUsername:-}
+      Admin__InitialPassword: ${Admin__InitialPassword:-}
+      Admin__InitialFullName: ${Admin__InitialFullName:-}
+      Email__Smtp__Host: ${Email__Smtp__Host:-}
+      Email__Smtp__Port: ${Email__Smtp__Port:-587}
+      Email__Smtp__EnableSsl: ${Email__Smtp__EnableSsl:-true}
+      Email__Smtp__Username: ${Email__Smtp__Username:-}
+      Email__Smtp__Password: ${Email__Smtp__Password:-}
+      Email__Smtp__FromAddress: ${Email__Smtp__FromAddress:-}
+      Email__Smtp__FromName: ${Email__Smtp__FromName:-Nhà Giả Kim}
+    ports:
+      - "8080:8080"

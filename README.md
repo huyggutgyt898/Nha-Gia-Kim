@@ -2,6 +2,40 @@
 
 ASP.NET Core 10 MVC application with a SQL Server-backed bookstore, storefront, checkout, and authenticated administration.
 
+## Deployment
+
+This repository supports a split deployment:
+
+- **Vercel** runs a small Next.js reverse proxy and serves the public Vercel URL.
+- **A container host** runs the existing ASP.NET MVC app from the included Linux Docker image.
+- **SQL Server** must be reachable by the ASP.NET container; use a managed or separately hosted database in production.
+
+Vercel does not run this ASP.NET application from its Dockerfile. The Vercel project proxies every route, including storefront, checkout, admin pages, static files, and `/api`, to the container host. The MVC pages and application behavior remain in ASP.NET; the small Next.js app is only the proxy.
+
+### Deploy the ASP.NET container
+
+1. Provision a SQL Server database reachable from your container host. Configure a SQL-authenticated connection string; the development Windows-authenticated connection string in `appsettings.json` will not work in the Linux container.
+2. Copy `.env.example` to `.env`, then set `ConnectionStrings__DefaultConnection`. Set the initial admin values when provisioning the first administrator, and SMTP values if order confirmation email is needed.
+3. Build and start the container:
+
+   ```sh
+   docker compose up --build -d
+   ```
+
+   The app listens on port `8080`. Configure the container host to expose that port over HTTPS and note its public origin, for example `https://bookstore.example-host.com` (no path or trailing slash is required).
+
+The app applies EF Core migrations at startup. Back up and review the database before deploying, especially when it contains existing data. Keep `.env` and all production credentials out of source control. Do not expose SQL Server publicly unless the provider requires it; restrict database access to the app host where possible.
+
+### Deploy the Vercel proxy
+
+1. Import this repository into Vercel and use the repository root as the project root. Vercel detects the root `package.json` as a Next.js project.
+2. Add the server-side environment variable `ASPNET_ORIGIN` to the Vercel project for every deployment environment. Set it to the public HTTPS origin of the running ASP.NET container, such as `https://bookstore.example-host.com`.
+3. Deploy. Vercel's public domain will proxy requests to the ASP.NET app. Re-deploy if the container host origin changes.
+
+For a local proxy build, set `ASPNET_ORIGIN` to a reachable ASP.NET origin and run `npm ci && npm run build`. Keep the variable server-side; it must not use a `NEXT_PUBLIC_` prefix.
+
+Because Vercel proxies requests to the container, IP-based rate limits in the app may see the proxy's egress address rather than each visitor's address. Verify checkout and admin-login throttling after deployment; use a hosting/proxy setup that forwards trusted client IPs if per-visitor throttling is required.
+
 ## Database
 
 The default connection string targets the `localhost\SQL2025` SQL Server instance using Windows authentication. The application applies EF Core migrations at startup and creates the `NhaGiaKim` database if it does not exist. Override the connection string for another SQL Server instance using `ConnectionStrings__DefaultConnection` (or edit `ConnectionStrings:DefaultConnection` in `appsettings.json`). For example:
