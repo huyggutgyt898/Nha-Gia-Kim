@@ -1,0 +1,76 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminOrderDetailViewModel
+@using Nha_Gia_Kim.Models.Entities
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = $"Đơn hàng {Model.OrderCode}";
+}
+
+<header class="admin-page-heading">
+    <div>
+        <a class="admin-back-link" asp-controller="Admin" asp-action="Orders">← Quay lại đơn hàng</a>
+        <p class="admin-eyebrow">CHI TIẾT ĐƠN HÀNG</p>
+        <h1>@Model.OrderCode</h1>
+        <p>Đặt lúc @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+    <span class="admin-order-status @StatusClass(Model.Status)">@Model.Status</span>
+</header>
+
+<div class="admin-detail-grid">
+    <section class="admin-detail-block">
+        <h2>Khách hàng</h2>
+        <p><strong>@Model.CustomerName</strong><br />@Model.CustomerEmail<br />@Model.CustomerPhone</p>
+    </section>
+    <section class="admin-detail-block">
+        <h2>Địa chỉ giao hàng</h2>
+        <p>@Model.ShippingAddress<br />@Model.ProvinceCity</p>
+    </section>
+</div>
+
+<section class="admin-panel">
+    <div class="admin-panel-heading"><h2>Sách trong đơn · @Model.Items.Sum(item => item.Quantity) cuốn</h2></div>
+    <div class="admin-table-scroll">
+        <table class="admin-table">
+            <thead><tr><th scope="col">Sách</th><th scope="col">Đơn giá</th><th scope="col">Số lượng</th><th scope="col">Thành tiền</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td><strong>@item.BookTitle</strong></td>
+                        <td class="text-nowrap">@item.UnitPrice.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ</td>
+                        <td>@item.Quantity</td>
+                        <td class="admin-order-total">@item.LineTotal.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr><th colspan="3">Tổng cộng · @Model.PaymentMethod</th><td class="admin-order-total">@Model.TotalAmount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ</td></tr>
+            </tfoot>
+        </table>
+    </div>
+</section>
+
+<section class="admin-detail-block admin-detail-status">
+    <h2>Cập nhật trạng thái giao hàng</h2>
+    <form class="admin-status-form" asp-controller="Admin" asp-action="UpdateOrderStatus"
+          asp-route-id="@Model.Id" method="post" asp-antiforgery="true">
+        <input type="hidden" name="returnToDetails" value="true" />
+        <select name="status" aria-label="Trạng thái đơn @Model.OrderCode">
+            @foreach (var status in OrderStatuses.All)
+            {
+                <option value="@status" selected="@(Model.Status == status)">@status</option>
+            }
+        </select>
+        <button class="admin-button admin-button-primary" type="submit">Lưu trạng thái</button>
+    </form>
+</section>
+
+@functions {
+    private static string StatusClass(string status) => status switch
+    {
+        OrderStatuses.Registered => "status-new",
+        OrderStatuses.Sent => "status-sent",
+        OrderStatuses.InTransit => "status-shipping",
+        OrderStatuses.Delivered => "status-delivered",
+        _ => string.Empty
+    };
+}

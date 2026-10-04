@@ -1,0 +1,59 @@
+@baseUrl = http://localhost:5088
+@cartId = 97c4cc64-7549-4a73-a56c-b0ee5cb8a195
+@bookId = 1
+@orderNumber = 5b2e4748-56f7-4306-8618-e9d1c277644e
+
+### Browse books
+GET {{baseUrl}}/api/books?page=1&pageSize=20
+
+### Search books
+GET {{baseUrl}}/api/books?search=kim&categoryId=1
+
+### Read a book
+GET {{baseUrl}}/api/books/{{bookId}}
+
+### Read a missing book (404)
+GET {{baseUrl}}/api/books/999999
+
+### List categories
+GET {{baseUrl}}/api/categories
+
+### Read cart (404 until an item has been added)
+GET {{baseUrl}}/api/carts/{{cartId}}
+
+### Add a book to the cart (creates the cart)
+POST {{baseUrl}}/api/carts/{{cartId}}/items
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "quantity": 2
+}
+
+### Change a cart line quantity
+PUT {{baseUrl}}/api/carts/{{cartId}}/items/{{bookId}}
+Content-Type: application/json
+
+{
+  "quantity": 1
+}
+
+### Remove a cart line
+DELETE {{baseUrl}}/api/carts/{{cartId}}/items/{{bookId}}
+
+### Place an order (use a cart with at least one item)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "cartId": "{{cartId}}",
+  "customerName": "Nguyen Van An",
+  "customerEmail": "an@example.com",
+  "customerPhone": "0901234567",
+  "shippingAddress": "12 Nguyen Hue, Quan 1",
+  "provinceCity": "TP. Hồ Chí Minh",
+  "paymentMethod": "CashOnDelivery"
+}
+
+### Read an order using its OrderNumber from the create response
+GET {{baseUrl}}/api/orders/{{orderNumber}}

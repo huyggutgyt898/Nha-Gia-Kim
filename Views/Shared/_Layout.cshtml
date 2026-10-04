@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Tiệm sách Nhà Giả Kim</title>
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @{
+        var showStorefrontNavigation = ViewData["ShowStorefrontNavigation"] as bool? == true;
+    }
+    <header>
+        <nav class="shop-header" aria-label="Điều hướng chính">
+            <div class="shop-header-inner">
+                <a class="shop-brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="Tiệm sách Nhà Giả Kim - Trang chủ">
+                    <span class="shop-brand-mark" aria-hidden="true"><img src="~/images/nha-gia-kim-bia.png" alt="" /></span>
+                    <span class="shop-brand-name"><span class="shop-brand-prefix">Tiệm sách</span> <strong>Nhà Giả Kim</strong></span>
+                </a>
+                <div class="shop-header-links">
+                    @if (showStorefrontNavigation)
+                    {
+                        <a class="shop-header-link" href="#gioi-thieu">Giới thiệu</a>
+                        <a class="shop-header-link" href="#thong-tin-sach">Thông tin sách</a>
+                        <a class="shop-header-link" href="#danh-gia">Đánh giá</a>
+                        <a class="shop-header-link" href="#bao-chi">Báo chí</a>
+                        <a class="shop-header-link" href="#dat-hang">Đặt hàng</a>
+                        <a class="shop-header-link" asp-controller="Catalog" asp-action="Index">Danh mục sách</a>
+                        <a class="shop-admin-link" asp-controller="Admin" asp-action="Login">Đăng nhập quản trị</a>
+                    }
+                    else
+                    {
+                        <a class="shop-header-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                        <a class="shop-header-link" asp-controller="Catalog" asp-action="Index">Danh mục sách</a>
+                        <a class="shop-admin-link" asp-controller="Admin" asp-action="Login">Đăng nhập quản trị</a>
+                    }
+                </div>
+                <details class="shop-mobile-nav">
+                    <summary aria-label="Mở menu điều hướng">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </summary>
+                    <div class="shop-mobile-links">
+                        @if (showStorefrontNavigation)
+                        {
+                            <a href="#gioi-thieu">Giới thiệu</a>
+                            <a href="#thong-tin-sach">Thông tin sách</a>
+                            <a href="#danh-gia">Đánh giá</a>
+                            <a href="#bao-chi">Báo chí</a>
+                            <a href="#dat-hang">Đặt hàng</a>
+                            <a asp-controller="Catalog" asp-action="Index">Danh mục sách</a>
+                            <a class="shop-admin-link" asp-controller="Admin" asp-action="Login">Đăng nhập quản trị</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            <a asp-controller="Catalog" asp-action="Index">Danh mục sách</a>
+                            <a class="shop-admin-link" asp-controller="Admin" asp-action="Login">Đăng nhập quản trị</a>
+                        }
+                    </div>
+                </details>
+                @if (showStorefrontNavigation)
+                {
+                    <a class="shop-header-cta" href="#dat-hang">Đặt mua ngay</a>
+                }
+                <button class="shop-cart-link" type="button" data-cart-toggle aria-expanded="false" aria-controls="cart-popover" aria-label="Mở giỏ hàng, 0 sản phẩm">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l2.1 11.2a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 1.9-1.4L22 8H6" /><circle cx="10" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
+                    <span>Giỏ hàng</span>
+                    <span class="cart-count" data-cart-count>0</span>
+                </button>
+                <aside id="cart-popover" class="cart-popover" data-cart-popover hidden aria-label="Giỏ hàng">
+                    <div class="cart-popover-heading">
+                        <h2>Giỏ hàng</h2>
+                        <button type="button" class="cart-close" data-cart-close aria-label="Đóng giỏ hàng">×</button>
+                    </div>
+                    <div data-cart-lines aria-live="polite"><p class="cart-empty">Giỏ hàng đang trống.</p></div>
+                    <div class="cart-subtotal" data-cart-subtotal hidden></div>
+                </aside>
+            </div>
+        </nav>
+    </header>
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="shop-footer">
+        <div class="shop-footer-inner">
+            <span>&copy; 2026 Tiệm sách Nhà Giả Kim</span>
+            <span class="shop-footer-contact">Hotline: Chưa cập nhật · Email: Chưa cập nhật</span>
+            <a asp-controller="Catalog" asp-action="Index">Danh mục sách</a>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">Chính sách riêng tư</a>
+            <span>Điều khoản mua hàng</span>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,107 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.HomeIndexViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Danh mục sách";
+    var vietnameseCulture = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<section class="catalog-page">
+    <div class="catalog-intro">
+        <p class="eyebrow">GÓC ĐỌC CỦA BẠN</p>
+        <h1>Danh mục sách</h1>
+        <p class="catalog-description">Tìm sách theo tên, tác giả hoặc thể loại.</p>
+    </div>
+
+    <div class="catalog-toolbar">
+        <form class="catalog-search" asp-controller="Catalog" asp-action="Index" method="get" role="search">
+            @if (Model.SelectedCategoryId.HasValue)
+            {
+                <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
+            }
+            <label class="visually-hidden" for="book-search">Tìm sách theo tên hoặc tác giả</label>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>
+            <input id="book-search" type="search" name="search" value="@Model.Search" placeholder="Tìm theo tên sách hoặc tác giả" />
+            <button type="submit">Tìm sách</button>
+        </form>
+        <p class="catalog-result-count">@Model.Books.TotalItems cuốn sách</p>
+    </div>
+
+    <nav id="danh-sach-sach" class="category-filter" aria-label="Lọc theo thể loại">
+        <a class="category-chip @(Model.SelectedCategoryId is null ? "is-active" : "")"
+           asp-controller="Catalog" asp-action="Index" asp-route-search="@Model.Search"
+           aria-current="@(Model.SelectedCategoryId is null ? "page" : null)">Tất cả</a>
+        @foreach (var category in Model.Categories)
+        {
+            <a class="category-chip @(Model.SelectedCategoryId == category.Id ? "is-active" : "")"
+               asp-controller="Catalog" asp-action="Index" asp-route-search="@Model.Search"
+               asp-route-categoryId="@category.Id"
+               aria-current="@(Model.SelectedCategoryId == category.Id ? "page" : null)">@category.Name</a>
+        }
+    </nav>
+
+    @if (Model.Books.Items.Count == 0)
+    {
+        <section class="catalog-empty" aria-live="polite">
+            <h2>Chưa tìm thấy cuốn sách phù hợp</h2>
+            <p>Thử từ khóa khác hoặc xem toàn bộ sách trong cửa hàng.</p>
+            <a class="button-primary" asp-controller="Catalog" asp-action="Index">Xem tất cả sách</a>
+        </section>
+    }
+    else
+    {
+        <section class="book-grid" aria-label="Danh sách sách">
+            @foreach (var book in Model.Books.Items)
+            {
+                var coverTone = book.CategoryId switch
+                {
+                    1 => "cover-tone-literature",
+                    2 => "cover-tone-business",
+                    _ => "cover-tone-life"
+                };
+                <article class="book-card">
+                    <div class="book-cover @coverTone">
+                        @if (!string.IsNullOrWhiteSpace(book.CoverImageUrl))
+                        {
+                            <img src="@book.CoverImageUrl" alt="Bìa sách @book.Title" loading="lazy" />
+                        }
+                        else
+                        {
+                            <div class="book-cover-placeholder" aria-label="Chưa có ảnh bìa">
+                                <span class="cover-publisher">TIỆM SÁCH NHÀ GIẢ KIM</span>
+                                <span class="cover-title">@book.Title</span>
+                                <span class="cover-author">@book.Author</span>
+                            </div>
+                        }
+                        <span class="book-category">@book.CategoryName</span>
+                    </div>
+                    <div class="book-card-content">
+                        <h2>@book.Title</h2>
+                        <p class="book-author">@book.Author</p>
+                        <div class="book-card-bottom">
+                            <div>
+                                <p class="book-price">@book.Price.ToString("N0", vietnameseCulture) đ</p>
+                                <p class="book-stock">@(book.StockQuantity > 0 ? $"Còn {book.StockQuantity} cuốn" : "Tạm hết hàng")</p>
+                            </div>
+                            <button class="add-to-cart" type="button" data-add-to-cart="@book.Id"
+                                    disabled="@(book.StockQuantity <= 0)"
+                                    aria-label="Thêm @book.Title vào giỏ hàng">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                                <span>Thêm vào giỏ</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            }
+        </section>
+    }
+</section>
+
+<div class="cart-notice" data-cart-notice role="status" aria-live="polite"></div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/catalog.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/catalog.js" asp-append-version="true"></script>
+}

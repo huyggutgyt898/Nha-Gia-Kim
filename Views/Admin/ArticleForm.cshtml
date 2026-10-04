@@ -1,0 +1,59 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminArticleFormViewModel
+@{
+    Layout = "_AdminLayout";
+    var isEditing = Model.Id.HasValue;
+    ViewData["Title"] = isEditing ? "Sửa bài báo" : "Thêm bài báo";
+}
+
+<header class="admin-page-heading">
+    <div>
+        <a class="admin-back-link" asp-controller="AdminManagement" asp-action="Content" asp-route-tab="articles">← Quay lại nội dung</a>
+        <p class="admin-eyebrow">NỘI DUNG SÁCH</p>
+        <h1>@(isEditing ? "Sửa bài báo" : "Thêm bài báo")</h1>
+        <p>Gắn bài viết từ báo chí với đầu sách tương ứng.</p>
+    </div>
+</header>
+
+<div class="admin-form-wrap">
+    <section class="admin-panel admin-form-panel">
+        <form asp-controller="AdminManagement" asp-action="@(isEditing ? "EditArticle" : "NewArticle")"
+              asp-route-id="@Model.Id" method="post" asp-antiforgery="true">
+            <div asp-validation-summary="All" class="admin-validation-summary" role="alert"></div>
+            <div class="admin-field">
+                <label asp-for="BookId">Sách liên quan <span class="required">*</span></label>
+                <select asp-for="BookId">
+                    <option value="">Chọn sách</option>
+                    @foreach (var book in Model.Books)
+                    {
+                        <option value="@book.Id">@book.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="BookId" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="PressName">Đơn vị báo chí <span class="required">*</span></label>
+                <input asp-for="PressName" />
+                <span asp-validation-for="PressName" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="ArticleTitle">Tiêu đề bài báo <span class="required">*</span></label>
+                <input asp-for="ArticleTitle" />
+                <span asp-validation-for="ArticleTitle" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="ArticleUrl">Liên kết bài báo</label>
+                <input asp-for="ArticleUrl" placeholder="https://example.com/bai-viet" />
+                <span asp-validation-for="ArticleUrl" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="Snippet">Trích dẫn ngắn</label>
+                <textarea asp-for="Snippet" rows="4"></textarea>
+                <span asp-validation-for="Snippet" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-form-actions">
+                <button class="admin-button admin-button-primary" type="submit">@(isEditing ? "Lưu thay đổi" : "Thêm bài báo")</button>
+                <a class="admin-button" asp-controller="AdminManagement" asp-action="Content" asp-route-tab="articles">Hủy</a>
+            </div>
+        </form>
+    </section>
+</div>

@@ -1,0 +1,75 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminBooksViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Sách";
+}
+
+<header class="admin-page-heading">
+    <div>
+        <p class="admin-eyebrow">DANH MỤC CỬA HÀNG</p>
+        <h1>Sách</h1>
+        <p>Quản lý đầu sách, giá bán và số lượng tồn kho.</p>
+    </div>
+    <a class="admin-button admin-button-primary" asp-controller="AdminManagement" asp-action="NewBook">Thêm sách</a>
+</header>
+
+<form class="admin-toolbar" asp-controller="AdminManagement" asp-action="Books" method="get">
+    <div class="admin-toolbar-start">
+        <label class="admin-search">
+            <span class="visually-hidden">Tìm sách</span>
+            <input type="search" name="search" value="@Model.Search" placeholder="Tìm tên sách, tác giả hoặc ISBN" />
+        </label>
+        <button class="admin-button" type="submit">Tìm</button>
+    </div>
+    <div class="admin-toolbar-end"><p class="admin-results-count">@Model.TotalBooks sách</p></div>
+</form>
+
+<section class="admin-panel" aria-label="Danh sách sách">
+    <div class="admin-table-scroll">
+        <table class="admin-table">
+            <thead><tr><th scope="col">Sách</th><th scope="col">Thể loại</th><th scope="col">Giá bán</th><th scope="col">Tồn kho</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead>
+            @if (Model.Books.Count > 0)
+            {
+                <tbody>
+                    @foreach (var book in Model.Books)
+                    {
+                        <tr>
+                            <td>
+                                <div class="admin-book-cell">
+                                    @if (!string.IsNullOrWhiteSpace(book.CoverImageUrl))
+                                    {
+                                        <img class="admin-book-cover" src="@book.CoverImageUrl" alt="" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-book-placeholder">Chưa có ảnh</span>
+                                    }
+                                    <span>
+                                        <strong>@book.Title</strong>
+                                        <span class="admin-table-secondary">@book.AuthorName</span>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>@book.CategoryName</td>
+                            <td class="text-nowrap">@book.Price.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ</td>
+                            <td class="@(book.StockQuantity == 0 ? "stock-empty" : null)">@book.StockQuantity</td>
+                            <td><span class="admin-order-status @(book.IsActive ? "status-delivered" : "status-inactive")">@(book.IsActive ? "Đang bán" : "Tạm ẩn")</span></td>
+                            <td>
+                                <div class="admin-inline-actions">
+                                    <a class="admin-button" asp-controller="AdminManagement" asp-action="EditBook" asp-route-id="@book.Id">Sửa</a>
+                                    <form asp-controller="AdminManagement" asp-action="ToggleBookAvailability" asp-route-id="@book.Id" method="post" asp-antiforgery="true">
+                                        <button class="admin-button" type="submit">@(book.IsActive ? "Ẩn" : "Bán lại")</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody><tr><td colspan="6"><p class="admin-empty-state">Chưa có sách phù hợp. Bạn có thể thêm sách mới ở trên.</p></td></tr></tbody>
+            }
+        </table>
+    </div>
+</section>

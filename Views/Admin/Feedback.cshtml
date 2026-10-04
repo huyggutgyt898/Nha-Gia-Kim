@@ -1,0 +1,58 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminFeedbackViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Phản hồi độc giả";
+}
+
+<header class="admin-page-heading">
+    <div>
+        <p class="admin-eyebrow">Ý KIẾN KHÁCH HÀNG</p>
+        <h1>Phản hồi độc giả</h1>
+        <p>Xem đánh giá sách được gửi từ cửa hàng.</p>
+    </div>
+</header>
+
+<form class="admin-toolbar" asp-controller="Admin" asp-action="Feedback" method="get">
+    <div class="admin-toolbar-start">
+        <label class="admin-search">
+            <span class="visually-hidden">Tìm phản hồi</span>
+            <input type="search" name="search" value="@Model.Search" placeholder="Tìm tên độc giả hoặc sách" />
+        </label>
+        <button class="admin-button" type="submit">Tìm</button>
+    </div>
+    <div class="admin-toolbar-end"><p class="admin-results-count">@Model.TotalFeedbacks phản hồi · hiển thị tối đa 100 mới nhất</p></div>
+</form>
+
+<section class="admin-panel" aria-label="Danh sách phản hồi độc giả">
+    <div class="admin-table-scroll">
+        <table class="admin-table">
+            <thead><tr><th scope="col">Độc giả</th><th scope="col">Sách</th><th scope="col">Đánh giá</th><th scope="col">Nhận xét</th><th scope="col">Ngày gửi</th><th scope="col">Thao tác</th></tr></thead>
+            @if (Model.Feedbacks.Count > 0)
+            {
+                <tbody>
+                    @foreach (var feedback in Model.Feedbacks)
+                    {
+                        <tr>
+                            <td><strong>@feedback.CustomerName</strong></td>
+                            <td>@feedback.BookTitle</td>
+                            <td><span class="admin-rating" aria-label="@feedback.Rating trên 5 sao"><span aria-hidden="true">★</span> @feedback.Rating/5</span></td>
+                            <td class="admin-feedback-comment">@(string.IsNullOrWhiteSpace(feedback.Comment) ? "—" : feedback.Comment)</td>
+                            <td class="text-nowrap">@feedback.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <form asp-controller="AdminManagement" asp-action="DeleteFeedback" asp-route-id="@feedback.Id" method="post"
+                                      asp-antiforgery="true" onsubmit="return confirm('Xóa phản hồi này?');">
+                                    <input type="hidden" name="search" value="@Model.Search" />
+                                    <button class="admin-button admin-button-danger" type="submit">Xóa</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody><tr><td colspan="6"><p class="admin-empty-state">Chưa có phản hồi phù hợp.</p></td></tr></tbody>
+            }
+        </table>
+    </div>
+</section>

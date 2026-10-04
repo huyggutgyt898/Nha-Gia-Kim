@@ -1,0 +1,330 @@
+@model Nha_Gia_Kim.Models.ViewModels.HomeLandingViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Nhà Giả Kim";
+    ViewData["ShowStorefrontNavigation"] = true;
+    var book = Model.Books.Items.FirstOrDefault(item => item.Id == 1);
+    var vietnameseCulture = CultureInfo.GetCultureInfo("vi-VN");
+    var reviewSubmitted = TempData["ReviewSuccess"] as string;
+    var roundedAverageRating = (int)Math.Round(Model.AverageRating, MidpointRounding.AwayFromZero);
+}
+
+<section class="book-landing">
+    @if (book is null)
+    {
+        <div class="landing-empty">
+            <h1>Nhà Giả Kim</h1>
+            <p>Hiện chưa có thông tin sách để hiển thị.</p>
+            <a class="button-outline" asp-controller="Catalog" asp-action="Index">Xem danh mục sách</a>
+        </div>
+    }
+    else
+    {
+        <section class="landing-hero">
+            <div class="landing-hero-copy">
+                <p class="eyebrow">Một hành trình bắt đầu từ giấc mơ</p>
+                <h1>@book.Title</h1>
+                <p class="landing-subtitle">@(book.Description ?? "Khám phá hành trình của cuốn sách.")</p>
+                <div class="landing-actions">
+                    <a class="button-primary" href="#dat-hang">Đặt hàng ngay</a>
+                    <button class="button-outline" type="button" disabled aria-describedby="preview-unavailable">Đọc thử / Tải file review</button>
+                </div>
+            </div>
+            <div class="featured-cover-wrap">
+                @if (!string.IsNullOrWhiteSpace(book.CoverImageUrl))
+                {
+                    <img class="featured-cover-image" src="@book.CoverImageUrl" alt="Bìa sách @book.Title" />
+                }
+                else
+                {
+                    <div class="book-cover-placeholder featured-cover" role="img" aria-label="Chưa có ảnh bìa sách">
+                        <span class="cover-publisher">TIỆM SÁCH NHÀ GIẢ KIM</span>
+                        <span class="cover-title">@book.Title</span>
+                        <span class="cover-author">@book.Author</span>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section id="thong-tin-sach" class="landing-section book-author-grid">
+            <article class="landing-card book-information">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Chi tiết</p>
+                        <h2>Thông tin sách</h2>
+                    </div>
+                    <button class="add-to-cart" type="button" data-add-to-cart="@book.Id"
+                            disabled="@(book.StockQuantity <= 0)"
+                            aria-label="Thêm @book.Title vào giỏ hàng">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                        <span>Thêm vào giỏ</span>
+                    </button>
+                </div>
+                <dl class="book-facts">
+                    <div><dt>Tên sách</dt><dd>@book.Title</dd></div>
+                    <div><dt>Thể loại</dt><dd>@book.CategoryName</dd></div>
+                    <div><dt>Tác giả</dt><dd>@book.Author</dd></div>
+                    <div><dt>Giá bán</dt><dd class="landing-price">@book.Price.ToString("N0", vietnameseCulture) đ</dd></div>
+                    <div><dt>Tình trạng</dt><dd>@(book.StockQuantity > 0 ? $"Còn {book.StockQuantity} cuốn" : "Tạm hết hàng")</dd></div>
+                </dl>
+                <p id="doc-thu" class="inline-note"><span id="preview-unavailable">File đọc thử chưa được liên kết.</span></p>
+            </article>
+
+            <article class="landing-card author-card">
+                <p class="eyebrow">Về tác giả</p>
+                <div class="author-details">
+                    <span class="author-initials" aria-label="Chưa có ảnh chân dung tác giả">PC</span>
+                    <div>
+                        <h2>@book.Author</h2>
+                        <p>Paulo Coelho là nhà văn người Brazil, được biết đến với những câu chuyện về hành trình khám phá bản thân.</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section id="bao-chi" class="landing-section landing-card press-section">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Góc nhìn truyền thông</p>
+                    <h2>Báo chí viết về sách</h2>
+                </div>
+            </div>
+            @if (Model.PressArticles.Count == 0)
+            {
+                <p class="quiet-empty">Chưa có bài viết báo chí được liên kết.</p>
+            }
+            else
+            {
+                <div class="press-articles">
+                    @foreach (var article in Model.PressArticles)
+                    {
+                        <article class="press-article">
+                            <p class="press-article-source">@article.PressName</p>
+                            <h3>
+                                @if (article.ArticleUrl is not null)
+                                {
+                                    <a href="@article.ArticleUrl" target="_blank" rel="noopener noreferrer">@article.ArticleTitle</a>
+                                }
+                                else
+                                {
+                                    @article.ArticleTitle
+                                }
+                            </h3>
+                            @if (!string.IsNullOrWhiteSpace(article.Snippet))
+                            {
+                                <p class="press-article-snippet">@article.Snippet</p>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section id="gioi-thieu" class="landing-section landing-card book-description">
+            <p class="eyebrow">Về cuốn sách</p>
+            <h2>Một câu chuyện về hành trình</h2>
+            <p>@(book.Description ?? "Nội dung giới thiệu sách đang được cập nhật.")</p>
+        </section>
+
+        <section id="danh-gia" class="landing-section landing-card feedback-section">
+            <div class="section-heading feedback-heading">
+                <div>
+                    <p class="eyebrow">Chia sẻ từ độc giả</p>
+                    <h2>Độc giả nói gì?</h2>
+                </div>
+                @if (Model.ReviewCount > 0)
+                {
+                    <div class="review-summary" aria-label="Điểm trung bình @Model.AverageRating.ToString("0.0", vietnameseCulture) trên 5 từ @Model.ReviewCount đánh giá">
+                        <span class="review-summary-score">@Model.AverageRating.ToString("0.0", vietnameseCulture)</span>
+                        <span class="review-stars" aria-hidden="true">
+                            @for (var star = 1; star <= 5; star++)
+                            {
+                                @(star <= roundedAverageRating ? "★" : "☆")
+                            }
+                        </span>
+                        <span class="review-summary-count">@Model.ReviewCount đánh giá</span>
+                    </div>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(reviewSubmitted))
+            {
+                <p class="review-notice review-notice-success" role="status">@reviewSubmitted</p>
+            }
+
+            @if (Model.Reviews.Count == 0)
+            {
+                <p class="quiet-empty">Chưa có đánh giá nào. Hãy chia sẻ cảm nhận đầu tiên của bạn.</p>
+            }
+            else
+            {
+                <div class="review-list">
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <article class="review-item">
+                            <div class="review-item-heading">
+                                <strong>@review.DisplayName</strong>
+                                <span class="review-item-stars" role="img" aria-label="@review.Rating trên 5 sao">
+                                    @for (var star = 1; star <= 5; star++)
+                                    {
+                                        <span aria-hidden="true">@(star <= review.Rating ? "★" : "☆")</span>
+                                    }
+                                </span>
+                            </div>
+                            <p class="review-content">@review.Content</p>
+                            <time class="review-date" datetime="@review.CreatedAt.ToString("yyyy-MM-dd")">
+                                @review.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy", vietnameseCulture)
+                            </time>
+                        </article>
+                    }
+                </div>
+            }
+
+            <form class="review-form" asp-controller="Home" asp-action="SubmitReview" method="post">
+                <h3>Viết đánh giá</h3>
+                <div asp-validation-summary="ModelOnly" class="review-validation" role="alert"></div>
+                <div class="review-form-fields">
+                    <div class="form-field">
+                        <label asp-for="ReviewForm.DisplayName"></label>
+                        <input asp-for="ReviewForm.DisplayName" autocomplete="nickname" maxlength="80" placeholder="Để trống nếu muốn ẩn danh" />
+                        <span asp-validation-for="ReviewForm.DisplayName" class="field-validation"></span>
+                    </div>
+                    <fieldset class="form-field review-rating-field">
+                        <legend>Số sao <span class="review-required-mark" aria-hidden="true">*</span></legend>
+                        <div class="review-rating-options" role="radiogroup" aria-label="Chọn số sao đánh giá" aria-required="true">
+                            @for (var rating = 5; rating >= 1; rating--)
+                            {
+                                <input class="review-rating-input" type="radio" id="review-rating-@rating"
+                                       name="ReviewForm.Rating" value="@rating"
+                                       required="@(rating == 5)"
+                                       checked="@(Model.ReviewForm.Rating == rating)" />
+                                <label class="review-rating-label" for="review-rating-@rating" aria-label="@rating sao">★</label>
+                            }
+                        </div>
+                        <span asp-validation-for="ReviewForm.Rating" class="field-validation"></span>
+                    </fieldset>
+                    <div class="form-field form-field-wide">
+                        <label asp-for="ReviewForm.Content"></label>
+                        <textarea asp-for="ReviewForm.Content" rows="4" minlength="8" maxlength="1000"
+                                  placeholder="Chia sẻ cảm nhận của bạn về cuốn sách" aria-describedby="review-content-hint"></textarea>
+                        <span id="review-content-hint" class="field-hint">Ít nhất 8 ký tự, tối đa 1.000 ký tự.</span>
+                        <span asp-validation-for="ReviewForm.Content" class="field-validation"></span>
+                    </div>
+                </div>
+                <button class="button-primary review-submit" type="submit">Gửi đánh giá</button>
+            </form>
+        </section>
+
+        @if (Model.RelatedBooks.Count > 0)
+        {
+            <section class="landing-section related-books-section" aria-labelledby="related-books-heading">
+                <div class="related-books-heading">
+                    <div>
+                        <p class="eyebrow">Gợi ý cho bạn</p>
+                        <h2 id="related-books-heading">Sách cùng chủ đề</h2>
+                    </div>
+                    <a class="related-books-link" asp-controller="Catalog" asp-action="Index">Xem toàn bộ danh mục</a>
+                </div>
+                <p class="related-books-description">Những cuốn sách về phát triển bản thân và hành trình trưởng thành.</p>
+                <div class="related-books-grid">
+                    @foreach (var relatedBook in Model.RelatedBooks)
+                    {
+                        <article class="related-book-card">
+                            <div class="related-book-cover">
+                                @if (!string.IsNullOrWhiteSpace(relatedBook.CoverImageUrl))
+                                {
+                                    <img src="@relatedBook.CoverImageUrl" alt="Bìa sách @relatedBook.Title" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="book-cover-placeholder" role="img" aria-label="Chưa có ảnh bìa sách @relatedBook.Title">
+                                        <span class="cover-publisher">GỢI Ý ĐỌC</span>
+                                        <span class="cover-title">@relatedBook.Title</span>
+                                        <span class="cover-author">@relatedBook.Author</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="related-book-content">
+                                <span class="related-book-category">@relatedBook.CategoryName</span>
+                                <h3>@relatedBook.Title</h3>
+                                <p>@relatedBook.Author</p>
+                                <div class="related-book-purchase">
+                                    <strong>@relatedBook.Price.ToString("N0", vietnameseCulture) đ</strong>
+                                    <button class="add-to-cart" type="button" data-add-to-cart="@relatedBook.Id"
+                                            disabled="@(relatedBook.StockQuantity <= 0)"
+                                            aria-label="Thêm @relatedBook.Title vào giỏ hàng">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                                        <span>Thêm vào giỏ</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+
+        <section id="dat-hang" class="landing-section landing-card order-section">
+            <div class="section-heading order-heading">
+                <div>
+                    <p class="eyebrow">Đặt hàng</p>
+                    <h2>Thông tin đơn hàng</h2>
+                </div>
+            </div>
+            <div class="checkout-summary" data-checkout-items aria-live="polite">
+                <p class="cart-empty">Đang tải giỏ hàng…</p>
+            </div>
+            <div class="checkout-totals" aria-live="polite">
+                <p><span>Số loại sách</span><strong data-order-types>0</strong></p>
+                <p><span>Tổng số lượng hàng hóa</span><strong data-order-count>0 cuốn</strong></p>
+                <p class="checkout-grand-total"><span>Tổng thanh toán</span><strong data-order-subtotal>0 đ</strong></p>
+            </div>
+            <form class="order-form" data-order-form>
+                <div class="form-field">
+                    <label for="customer-name">Tên khách hàng</label>
+                    <input id="customer-name" name="customerName" autocomplete="name" minlength="2" maxlength="150" required placeholder="Nhập họ và tên" />
+                </div>
+                <div class="form-field">
+                    <label for="customer-email">Email nhận xác nhận đơn hàng</label>
+                    <input id="customer-email" name="customerEmail" type="email" autocomplete="email" maxlength="254" required placeholder="ten@example.com" />
+                </div>
+                <div class="form-field">
+                    <label for="customer-phone">Số điện thoại</label>
+                    <input id="customer-phone" name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" minlength="8" maxlength="30" required placeholder="Nhập số điện thoại" />
+                </div>
+                <div class="form-field">
+                    <label for="shipping-city">Tỉnh / Thành phố</label>
+                    <input id="shipping-city" name="provinceCity" autocomplete="address-level1" minlength="2" maxlength="100" required placeholder="Nhập tỉnh / thành phố" />
+                </div>
+                <div class="form-field form-field-wide">
+                    <label for="shipping-address">Địa chỉ giao hàng</label>
+                    <textarea id="shipping-address" name="shippingAddress" autocomplete="street-address" minlength="8" maxlength="500" required placeholder="Nhập số nhà, đường, phường/xã"></textarea>
+                </div>
+                <div class="form-field form-field-wide">
+                    <label for="payment-method">Phương thức thanh toán</label>
+                    <select id="payment-method" name="paymentMethod" required>
+                        <option value="">Chọn phương thức thanh toán</option>
+                        <option value="CashOnDelivery">COD · Thanh toán khi nhận hàng</option>
+                        <option value="BankTransfer">Chuyển khoản · thanh toán theo hướng dẫn sau</option>
+                        <option value="DigitalWallet">Ví điện tử · thanh toán theo hướng dẫn sau</option>
+                    </select>
+                </div>
+                <div class="form-field form-field-wide">
+                    <button class="button-primary order-submit" type="submit" data-order-submit disabled>Đặt hàng</button>
+                </div>
+            </form>
+            <p class="checkout-status" data-checkout-status role="status" aria-live="polite"></p>
+        </section>
+    }
+</section>
+
+<div class="cart-notice" data-cart-notice role="status" aria-live="polite"></div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/catalog.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/catalog.js" asp-append-version="true"></script>
+    <script src="~/js/checkout.js" asp-append-version="true"></script>
+}

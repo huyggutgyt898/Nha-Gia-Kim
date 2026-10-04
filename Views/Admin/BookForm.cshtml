@@ -1,0 +1,108 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminBookFormViewModel
+@{
+    Layout = "_AdminLayout";
+    var isEditing = Model.Id.HasValue;
+    ViewData["Title"] = isEditing ? "Sửa sách" : "Thêm sách";
+}
+
+<header class="admin-page-heading">
+    <div>
+        <a class="admin-back-link" asp-controller="AdminManagement" asp-action="Books">← Quay lại sách</a>
+        <p class="admin-eyebrow">DANH MỤC CỬA HÀNG</p>
+        <h1>@(isEditing ? "Sửa thông tin sách" : "Thêm sách")</h1>
+        <p>Thông tin sách và tồn kho dùng chung với cửa hàng.</p>
+    </div>
+</header>
+
+<div class="admin-form-wrap">
+    <section class="admin-panel admin-form-panel">
+        <form asp-controller="AdminManagement"
+              asp-action="@(isEditing ? "EditBook" : "NewBook")"
+              asp-route-id="@Model.Id"
+              method="post" asp-antiforgery="true">
+            @if (isEditing)
+            {
+                <input asp-for="RowVersion" type="hidden" />
+            }
+            <div asp-validation-summary="All" class="admin-validation-summary" role="alert"></div>
+            <div class="admin-field">
+                <label asp-for="Title">Tên sách <span class="required">*</span></label>
+                <input asp-for="Title" autocomplete="off" />
+                <span asp-validation-for="Title" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="Subtitle">Phụ đề</label>
+                <input asp-for="Subtitle" />
+                <span asp-validation-for="Subtitle" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-form-grid">
+                <div class="admin-field">
+                    <label asp-for="AuthorId">Tác giả <span class="required">*</span></label>
+                    <select asp-for="AuthorId">
+                        <option value="">Chọn tác giả</option>
+                        @foreach (var author in Model.Authors)
+                        {
+                            <option value="@author.Id">@author.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="AuthorId" class="admin-field-validation"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="CategoryId">Thể loại <span class="required">*</span></label>
+                    <select asp-for="CategoryId">
+                        <option value="">Chọn thể loại</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CategoryId" class="admin-field-validation"></span>
+                </div>
+            </div>
+            <div class="admin-form-grid">
+                <div class="admin-field">
+                    <label asp-for="Price">Giá bán (đ) <span class="required">*</span></label>
+                    <input asp-for="Price" type="number" min="0" max="99999999.99" step="0.01" />
+                    <span asp-validation-for="Price" class="admin-field-validation"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="OriginalPrice">Giá gốc (đ)</label>
+                    <input asp-for="OriginalPrice" type="number" min="0" max="99999999.99" step="0.01" />
+                    <span asp-validation-for="OriginalPrice" class="admin-field-validation"></span>
+                </div>
+            </div>
+            <div class="admin-form-grid">
+                <div class="admin-field">
+                    <label asp-for="Isbn">ISBN</label>
+                    <input asp-for="Isbn" />
+                    <span asp-validation-for="Isbn" class="admin-field-validation"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="StockQuantity">Số lượng tồn kho <span class="required">*</span></label>
+                    <input asp-for="StockQuantity" type="number" min="0" step="1" />
+                    <span asp-validation-for="StockQuantity" class="admin-field-validation"></span>
+                </div>
+            </div>
+            <div class="admin-field">
+                <label asp-for="CoverImageUrl">Đường dẫn ảnh bìa</label>
+                <input asp-for="CoverImageUrl" placeholder="/images/ten-sach.png" />
+                <span asp-validation-for="CoverImageUrl" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="FilePreviewUrl">Đường dẫn đọc thử</label>
+                <input asp-for="FilePreviewUrl" />
+                <span asp-validation-for="FilePreviewUrl" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="Description">Mô tả</label>
+                <textarea asp-for="Description" rows="4"></textarea>
+                <span asp-validation-for="Description" class="admin-field-validation"></span>
+            </div>
+            <label class="admin-form-check"><input asp-for="IsActive" /> Hiển thị và cho phép đặt mua</label>
+            <div class="admin-form-actions">
+                <button class="admin-button admin-button-primary" type="submit">@(isEditing ? "Lưu thay đổi" : "Thêm sách")</button>
+                <a class="admin-button" asp-controller="AdminManagement" asp-action="Books">Hủy</a>
+            </div>
+        </form>
+    </section>
+</div>

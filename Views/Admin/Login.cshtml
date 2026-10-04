@@ -1,0 +1,32 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminLoginViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<main class="admin-login-page">
+    <form class="admin-login-card" asp-controller="Admin" asp-action="Login" method="post" asp-antiforgery="true">
+        <a class="admin-brand" asp-controller="Home" asp-action="Index">
+            <span class="admin-brand-mark" aria-hidden="true">N</span>
+            <span>Tiệm sách <strong>Nhà Giả Kim</strong></span>
+        </a>
+        <p class="admin-eyebrow">KHU VỰC QUẢN TRỊ</p>
+        <h1>Đăng nhập</h1>
+        <p class="admin-login-intro">Dùng tài khoản quản trị để tiếp tục.</p>
+
+        <div asp-validation-summary="ModelOnly" class="admin-login-error" role="alert"></div>
+        <div class="admin-field">
+            <label asp-for="Username">Tên đăng nhập</label>
+            <input asp-for="Username" autocomplete="username" placeholder="Nhập tên đăng nhập" autofocus />
+            <span asp-validation-for="Username" class="admin-field-validation"></span>
+        </div>
+        <div class="admin-field">
+            <label asp-for="Password">Mật khẩu</label>
+            <input asp-for="Password" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu" />
+            <span asp-validation-for="Password" class="admin-field-validation"></span>
+        </div>
+        <input asp-for="ReturnUrl" type="hidden" />
+        <button class="admin-button admin-button-primary" type="submit">Đăng nhập</button>
+        <p class="admin-login-help">Quên mật khẩu? Liên hệ người quản lý hệ thống để được đặt lại.</p>
+    </form>
+</main>

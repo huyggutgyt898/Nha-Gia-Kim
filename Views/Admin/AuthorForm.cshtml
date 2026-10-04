@@ -1,0 +1,43 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminAuthorFormViewModel
+@{
+    Layout = "_AdminLayout";
+    var isEditing = Model.Id.HasValue;
+    ViewData["Title"] = isEditing ? "Sửa tác giả" : "Thêm tác giả";
+}
+
+<header class="admin-page-heading">
+    <div>
+        <a class="admin-back-link" asp-controller="AdminManagement" asp-action="Content" asp-route-tab="authors">← Quay lại nội dung</a>
+        <p class="admin-eyebrow">DANH MỤC CỬA HÀNG</p>
+        <h1>@(isEditing ? "Sửa tác giả" : "Thêm tác giả")</h1>
+        <p>Thông tin tác giả được hiển thị cùng các đầu sách liên quan.</p>
+    </div>
+</header>
+
+<div class="admin-form-wrap">
+    <section class="admin-panel admin-form-panel">
+        <form asp-controller="AdminManagement" asp-action="@(isEditing ? "EditAuthor" : "NewAuthor")"
+              asp-route-id="@Model.Id" method="post" asp-antiforgery="true">
+            <div asp-validation-summary="All" class="admin-validation-summary" role="alert"></div>
+            <div class="admin-field">
+                <label asp-for="Name">Tên tác giả <span class="required">*</span></label>
+                <input asp-for="Name" autocomplete="off" />
+                <span asp-validation-for="Name" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="AvatarUrl">Đường dẫn ảnh đại diện</label>
+                <input asp-for="AvatarUrl" placeholder="/images/tac-gia.png" />
+                <span asp-validation-for="AvatarUrl" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-field">
+                <label asp-for="Bio">Giới thiệu</label>
+                <textarea asp-for="Bio" rows="5"></textarea>
+                <span asp-validation-for="Bio" class="admin-field-validation"></span>
+            </div>
+            <div class="admin-form-actions">
+                <button class="admin-button admin-button-primary" type="submit">@(isEditing ? "Lưu thay đổi" : "Thêm tác giả")</button>
+                <a class="admin-button" asp-controller="AdminManagement" asp-action="Content" asp-route-tab="authors">Hủy</a>
+            </div>
+        </form>
+    </section>
+</div>

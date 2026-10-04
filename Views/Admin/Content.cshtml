@@ -1,0 +1,168 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminContentViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Nội dung sách";
+    var tabTitle = Model.Tab switch
+    {
+        "authors" => "Tác giả",
+        "categories" => "Thể loại",
+        _ => "Bài báo"
+    };
+    var createAction = Model.Tab switch
+    {
+        "authors" => "NewAuthor",
+        "categories" => "NewCategory",
+        _ => "NewArticle"
+    };
+}
+
+<header class="admin-page-heading">
+    <div>
+        <p class="admin-eyebrow">DANH MỤC CỬA HÀNG</p>
+        <h1>Nội dung sách</h1>
+        <p>Quản lý tác giả, thể loại và bài báo giới thiệu sách.</p>
+    </div>
+    <a class="admin-button admin-button-primary" asp-controller="AdminManagement" asp-action="@createAction">Thêm @tabTitle.ToLowerInvariant()</a>
+</header>
+
+<nav class="admin-tabs" aria-label="Loại nội dung">
+    <a class="admin-tab @(Model.Tab == "articles" ? "is-current" : null)" aria-current="@(Model.Tab == "articles" ? "page" : null)"
+       asp-controller="AdminManagement" asp-action="Content" asp-route-tab="articles">Bài báo <span>@Model.Articles.Count</span></a>
+    <a class="admin-tab @(Model.Tab == "authors" ? "is-current" : null)" aria-current="@(Model.Tab == "authors" ? "page" : null)"
+       asp-controller="AdminManagement" asp-action="Content" asp-route-tab="authors">Tác giả <span>@Model.Authors.Count</span></a>
+    <a class="admin-tab @(Model.Tab == "categories" ? "is-current" : null)" aria-current="@(Model.Tab == "categories" ? "page" : null)"
+       asp-controller="AdminManagement" asp-action="Content" asp-route-tab="categories">Thể loại <span>@Model.Categories.Count</span></a>
+</nav>
+
+<section class="admin-panel" aria-label="@tabTitle">
+    <div class="admin-table-scroll">
+        @if (Model.Tab == "articles")
+        {
+            <table class="admin-table">
+                <thead><tr><th scope="col">Đơn vị báo chí</th><th scope="col">Tiêu đề bài báo</th><th scope="col">Sách</th><th scope="col">Liên kết</th><th scope="col">Thao tác</th></tr></thead>
+                @if (Model.Articles.Count > 0)
+                {
+                    <tbody>
+                        @foreach (var article in Model.Articles)
+                        {
+                            <tr>
+                                <td><strong>@article.PressName</strong></td>
+                                <td>@article.ArticleTitle</td>
+                                <td>@article.BookTitle</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(article.ArticleUrl))
+                                    {
+                                        <a class="admin-external-link" href="@article.ArticleUrl" target="_blank" rel="noopener noreferrer">Mở bài báo ↗</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-table-secondary">Chưa có liên kết</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="admin-inline-actions">
+                                        <a class="admin-button" asp-controller="AdminManagement" asp-action="EditArticle" asp-route-id="@article.Id">Sửa</a>
+                                        <form asp-controller="AdminManagement" asp-action="DeleteArticle" asp-route-id="@article.Id" method="post"
+                                              asp-antiforgery="true" onsubmit="return confirm('Xóa bài báo này?');">
+                                            <button class="admin-button admin-button-danger" type="submit">Xóa</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+                else
+                {
+                    <tbody><tr><td colspan="5"><p class="admin-empty-state">Chưa có bài báo nào.</p></td></tr></tbody>
+                }
+            </table>
+        }
+        else if (Model.Tab == "authors")
+        {
+            <table class="admin-table">
+                <thead><tr><th scope="col">Tác giả</th><th scope="col">Giới thiệu</th><th scope="col">Đầu sách</th><th scope="col">Thao tác</th></tr></thead>
+                @if (Model.Authors.Count > 0)
+                {
+                    <tbody>
+                        @foreach (var author in Model.Authors)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="admin-author-cell">
+                                        @if (!string.IsNullOrWhiteSpace(author.AvatarUrl))
+                                        {
+                                            <img src="@author.AvatarUrl" alt="" loading="lazy" />
+                                        }
+                                        <strong>@author.Name</strong>
+                                    </div>
+                                </td>
+                                <td class="admin-content-description">@(string.IsNullOrWhiteSpace(author.Bio) ? "—" : author.Bio)</td>
+                                <td>@author.BookCount</td>
+                                <td>
+                                    <div class="admin-inline-actions">
+                                        <a class="admin-button" asp-controller="AdminManagement" asp-action="EditAuthor" asp-route-id="@author.Id">Sửa</a>
+                                        @if (author.BookCount == 0)
+                                        {
+                                            <form asp-controller="AdminManagement" asp-action="DeleteAuthor" asp-route-id="@author.Id" method="post"
+                                                  asp-antiforgery="true" onsubmit="return confirm('Xóa tác giả này?');">
+                                                <button class="admin-button admin-button-danger" type="submit">Xóa</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button class="admin-button" type="button" disabled title="Tác giả vẫn đang được sách sử dụng">Đang dùng</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+                else
+                {
+                    <tbody><tr><td colspan="4"><p class="admin-empty-state">Chưa có tác giả nào.</p></td></tr></tbody>
+                }
+            </table>
+        }
+        else
+        {
+            <table class="admin-table">
+                <thead><tr><th scope="col">Thể loại</th><th scope="col">Đường dẫn</th><th scope="col">Đầu sách</th><th scope="col">Thao tác</th></tr></thead>
+                @if (Model.Categories.Count > 0)
+                {
+                    <tbody>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <tr>
+                                <td><strong>@category.Name</strong></td>
+                                <td><code class="admin-slug">@category.Slug</code></td>
+                                <td>@category.BookCount</td>
+                                <td>
+                                    <div class="admin-inline-actions">
+                                        <a class="admin-button" asp-controller="AdminManagement" asp-action="EditCategory" asp-route-id="@category.Id">Sửa</a>
+                                        @if (category.BookCount == 0)
+                                        {
+                                            <form asp-controller="AdminManagement" asp-action="DeleteCategory" asp-route-id="@category.Id" method="post"
+                                                  asp-antiforgery="true" onsubmit="return confirm('Xóa thể loại này?');">
+                                                <button class="admin-button admin-button-danger" type="submit">Xóa</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button class="admin-button" type="button" disabled title="Thể loại vẫn đang được sách sử dụng">Đang dùng</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+                else
+                {
+                    <tbody><tr><td colspan="4"><p class="admin-empty-state">Chưa có thể loại nào.</p></td></tr></tbody>
+                }
+            </table>
+        }
+    </div>
+</section>

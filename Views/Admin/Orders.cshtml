@@ -1,0 +1,143 @@
+﻿@model Nha_Gia_Kim.Models.ViewModels.AdminOrdersViewModel
+@using Nha_Gia_Kim.Models.Entities
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Đơn hàng";
+}
+
+<header class="admin-page-heading">
+    <div>
+        <p class="admin-eyebrow">VẬN HÀNH CỬA HÀNG</p>
+        <h1>Đơn hàng</h1>
+        <p>Theo dõi đơn mới, thông tin giao hàng và trạng thái xử lý.</p>
+    </div>
+</header>
+
+<nav class="admin-pipeline" aria-label="Lọc đơn hàng theo trạng thái">
+    @foreach (var status in OrderStatuses.All)
+    {
+        <a asp-controller="Admin"
+           asp-action="Orders"
+           asp-route-status="@status"
+           asp-route-search="@Model.Search"
+           class="@(Model.Status == status ? "is-current" : null)"
+           aria-current="@(Model.Status == status ? "page" : null)">
+            <span>@status</span>
+            <strong>@Model.StatusCounts.GetValueOrDefault(status)</strong>
+        </a>
+    }
+</nav>
+
+<div class="admin-toolbar">
+    <form class="admin-toolbar-start" asp-controller="Admin" asp-action="Orders" method="get">
+        <label class="admin-search">
+            <span class="visually-hidden">Tìm đơn hàng</span>
+            <input type="search" name="search" value="@Model.Search"
+                   placeholder="Tìm mã đơn, tên, email hoặc số điện thoại" />
+        </label>
+        <select name="status" aria-label="Lọc trạng thái">
+            <option value="">Tất cả trạng thái</option>
+            @foreach (var status in OrderStatuses.All)
+            {
+                <option value="@status" selected="@(Model.Status == status)">@status</option>
+            }
+        </select>
+        <button class="admin-button" type="submit">Lọc</button>
+    </form>
+    <div class="admin-toolbar-end">
+        <p class="admin-results-count">@Model.TotalOrders đơn hàng</p>
+    </div>
+</div>
+
+<section class="admin-panel" aria-label="Danh sách đơn hàng">
+    <div class="admin-table-scroll">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th scope="col">Mã đơn</th>
+                    <th scope="col">Khách hàng</th>
+                    <th scope="col">Ngày đặt</th>
+                    <th scope="col">Thanh toán</th>
+                    <th scope="col">Số cuốn</th>
+                    <th scope="col">Tổng tiền</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col">Cập nhật</th>
+                </tr>
+            </thead>
+            @if (Model.Orders.Count > 0)
+            {
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td>
+                                <a class="admin-table-code" asp-controller="Admin" asp-action="OrderDetails" asp-route-id="@order.Id">
+                                    @order.OrderCode
+                                </a>
+                            </td>
+                            <td>
+                                <strong>@order.CustomerName</strong>
+                                <span class="admin-table-secondary">@order.CustomerPhone · @order.CustomerEmail</span>
+                            </td>
+                            <td class="text-nowrap">@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@order.PaymentMethod</td>
+                            <td>@order.TotalCopies</td>
+                            <td class="admin-order-total">@order.TotalAmount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ</td>
+                            <td><span class="admin-order-status @StatusClass(order.Status)">@order.Status</span></td>
+                            <td>
+                                <form class="admin-status-form" asp-controller="Admin" asp-action="UpdateOrderStatus"
+                                      asp-route-id="@order.Id" method="post" asp-antiforgery="true">
+                                    <input type="hidden" name="search" value="@Model.Search" />
+                                    <input type="hidden" name="selectedStatus" value="@Model.Status" />
+                                    <input type="hidden" name="page" value="@Model.Page" />
+                                    <select name="status" aria-label="Trạng thái đơn @order.OrderCode">
+                                        @foreach (var status in OrderStatuses.All)
+                                        {
+                                            <option value="@status" selected="@(order.Status == status)">@status</option>
+                                        }
+                                    </select>
+                                    <button class="admin-button" type="submit">Lưu</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr><td colspan="8"><p class="admin-empty-state">Không có đơn hàng phù hợp với bộ lọc hiện tại.</p></td></tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</section>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="admin-pagination" aria-label="Phân trang đơn hàng">
+        @if (Model.Page > 1)
+        {
+            <a asp-controller="Admin" asp-action="Orders" asp-route-search="@Model.Search"
+               asp-route-status="@Model.Status" asp-route-page="@(Model.Page - 1)" aria-label="Trang trước">‹</a>
+        }
+        <span class="is-current" aria-current="page">@Model.Page</span>
+        <span>trên @Model.TotalPages</span>
+        @if (Model.Page < Model.TotalPages)
+        {
+            <a asp-controller="Admin" asp-action="Orders" asp-route-search="@Model.Search"
+               asp-route-status="@Model.Status" asp-route-page="@(Model.Page + 1)" aria-label="Trang sau">›</a>
+        }
+    </nav>
+}
+
+@functions {
+    private static string StatusClass(string status) => status switch
+    {
+        OrderStatuses.Registered => "status-new",
+        OrderStatuses.Sent => "status-sent",
+        OrderStatuses.InTransit => "status-shipping",
+        OrderStatuses.Delivered => "status-delivered",
+        _ => string.Empty
+    };
+}
