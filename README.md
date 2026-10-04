@@ -4,7 +4,25 @@ ASP.NET Core 10 MVC application with a SQL Server-backed bookstore, storefront, 
 
 ## Deployment
 
-This repository supports a split deployment:
+### Deploy directly to Render
+
+Render runs the existing ASP.NET application from the Linux Dockerfile. The SQL Server database remains hosted separately.
+
+1. Confirm that the online SQL Server accepts encrypted SQL-authenticated connections from Render. If the database has an IP firewall, allow the outbound IP addresses shown for the Render service. Do not use the Windows-authenticated development connection string.
+2. Push this repository to GitHub, then in Render choose **New + → Blueprint** and select the repository. Render reads `render.yaml`; choose the free web service if prompted.
+3. When asked for `ConnectionStrings__DefaultConnection`, enter the production SQL Server connection string as a secret. Do not commit it to Git or send it in chat.
+4. Create the Blueprint. Render builds the Docker image and runs EF Core migrations during startup. Wait until the service is **Live**, then open its `onrender.com` URL.
+5. In the service's **Environment** settings, add `Admin__InitialUsername`, `Admin__InitialPassword` (at least 12 characters), and `Admin__InitialFullName` if the database does not already contain an administrator. Save changes to redeploy. Add `Email__Smtp__...` variables there if order confirmation email is required.
+
+The included `free` plan may spin down after inactivity and take time to respond to the first request. Render's plan availability and limits can change; check its current pricing before deploying. The app applies database migrations on startup, so back up and review any production database before the first deploy. Keep credentials in Render's environment settings.
+
+Subsequent pushes to the connected branch trigger a new deployment. If the build fails, inspect **Events** and **Logs** in Render; database connection or firewall errors usually mean the SQL Server is not reachable from the service.
+
+### Optional: deploy through Vercel
+
+If you specifically want a Vercel URL, deploy the ASP.NET Docker service on a separate container host and set Vercel's server-side `ASPNET_ORIGIN` to that host's HTTPS origin. Render can serve the app directly, so Vercel is not needed for a Render deployment.
+
+For a separate Vercel deployment, the repository can also be configured as a split deployment:
 
 - **Vercel** runs a small Next.js reverse proxy and serves the public Vercel URL.
 - **A container host** runs the existing ASP.NET MVC app from the included Linux Docker image.

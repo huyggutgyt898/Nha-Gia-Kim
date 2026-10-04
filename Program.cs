@@ -114,6 +114,9 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }))
+    .AllowAnonymous();
+
 app.MapStaticAssets();
 if (app.Environment.IsDevelopment())
 {
