@@ -9,6 +9,7 @@ public interface IAdminManagementService
     Task PopulateBookOptionsAsync(AdminBookFormViewModel model, CancellationToken cancellationToken);
     Task<AdminSaveResult> SaveBookAsync(int? id, AdminBookFormViewModel model, CancellationToken cancellationToken);
     Task<AdminSaveResult> ToggleBookAvailabilityAsync(int id, CancellationToken cancellationToken);
+    Task<AdminSaveResult> DeleteBookAsync(int id, CancellationToken cancellationToken);
 
     Task<AdminContentViewModel> GetContentAsync(string? tab, CancellationToken cancellationToken);
     Task<AdminAuthorFormViewModel?> GetAuthorFormAsync(int? id, CancellationToken cancellationToken);

@@ -102,6 +102,20 @@ public sealed class AdminManagementController(IAdminManagementService management
         return RedirectToAction(nameof(Books));
     }
 
+    [HttpPost("books/{id:int}/delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteBook(int id, CancellationToken cancellationToken)
+    {
+        var result = await managementService.DeleteBookAsync(id, cancellationToken);
+        TempData["AdminNotice"] = result switch
+        {
+            AdminSaveResult.Success => "Đã xóa sách.",
+            AdminSaveResult.InUse => "Không thể xóa sách đang được đơn hàng, phản hồi hoặc bài báo tham chiếu. Hãy ẩn sách thay thế.",
+            _ => "Không tìm thấy sách."
+        };
+        return RedirectToAction(nameof(Books));
+    }
+
     [HttpGet("content")]
     public async Task<IActionResult> Content(string? tab, CancellationToken cancellationToken)
     {

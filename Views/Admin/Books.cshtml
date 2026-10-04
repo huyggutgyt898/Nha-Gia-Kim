@@ -13,6 +13,12 @@
     <a class="admin-button admin-button-primary" asp-controller="AdminManagement" asp-action="NewBook">Thêm sách</a>
 </header>
 
+<nav class="admin-books-related" aria-label="Quản lý thông tin sách">
+    <a asp-controller="AdminManagement" asp-action="Content" asp-route-tab="authors">Tác giả</a>
+    <a asp-controller="AdminManagement" asp-action="Content" asp-route-tab="categories">Thể loại</a>
+    <a asp-controller="AdminManagement" asp-action="Content" asp-route-tab="articles">Bài báo</a>
+</nav>
+
 <form class="admin-toolbar" asp-controller="AdminManagement" asp-action="Books" method="get">
     <div class="admin-toolbar-start">
         <label class="admin-search">
@@ -59,6 +65,10 @@
                                     <a class="admin-button" asp-controller="AdminManagement" asp-action="EditBook" asp-route-id="@book.Id">Sửa</a>
                                     <form asp-controller="AdminManagement" asp-action="ToggleBookAvailability" asp-route-id="@book.Id" method="post" asp-antiforgery="true">
                                         <button class="admin-button" type="submit">@(book.IsActive ? "Ẩn" : "Bán lại")</button>
+                                    </form>
+                                    <form asp-controller="AdminManagement" asp-action="DeleteBook" asp-route-id="@book.Id" method="post" asp-antiforgery="true"
+                                          onsubmit="return confirm('Xóa sách này vĩnh viễn? Chỉ sách chưa được đơn hàng, phản hồi hoặc bài báo sử dụng mới xóa được.');">
+                                        <button class="admin-button admin-button-danger" type="submit">Xóa</button>
                                     </form>
                                 </div>
                             </td>

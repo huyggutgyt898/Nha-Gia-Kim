@@ -200,6 +200,31 @@ public sealed class AdminManagementService(BookstoreDbContext dbContext) : IAdmi
         return AdminSaveResult.Success;
     }
 
+    public async Task<AdminSaveResult> DeleteBookAsync(int id, CancellationToken cancellationToken)
+    {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(
+            System.Data.IsolationLevel.Serializable,
+            cancellationToken);
+        var book = await dbContext.Books.SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (book is null)
+        {
+            return AdminSaveResult.NotFound;
+        }
+
+        var hasOrderItems = await dbContext.OrderItems.AnyAsync(item => item.BookId == id, cancellationToken);
+        var hasFeedback = await dbContext.Feedbacks.AnyAsync(item => item.BookId == id, cancellationToken);
+        var hasPressArticles = await dbContext.PressArticles.AnyAsync(item => item.BookId == id, cancellationToken);
+        if (hasOrderItems || hasFeedback || hasPressArticles)
+        {
+            return AdminSaveResult.InUse;
+        }
+
+        dbContext.Books.Remove(book);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return AdminSaveResult.Success;
+    }
+
     public async Task<AdminContentViewModel> GetContentAsync(
         string? tab,
         CancellationToken cancellationToken)
