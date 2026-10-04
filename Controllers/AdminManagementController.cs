@@ -14,7 +14,7 @@ public sealed class AdminManagementController(IAdminManagementService management
     {
         SetPage("books", "Sách");
         var model = await managementService.GetBooksAsync(search, cancellationToken);
-        return View("Books", model);
+        return AdminView("Books", model);
     }
 
     [HttpGet("books/new")]
@@ -22,7 +22,7 @@ public sealed class AdminManagementController(IAdminManagementService management
     {
         SetPage("books", "Thêm sách");
         var model = await managementService.GetBookFormAsync(null, cancellationToken);
-        return View("BookForm", model);
+        return AdminView("BookForm", model);
     }
 
     [HttpPost("books/new")]
@@ -45,7 +45,7 @@ public sealed class AdminManagementController(IAdminManagementService management
 
         await managementService.PopulateBookOptionsAsync(model, cancellationToken);
         SetPage("books", "Thêm sách");
-        return View("BookForm", model);
+        return AdminView("BookForm", model);
     }
 
     [HttpGet("books/{id:int}/edit")]
@@ -58,7 +58,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         }
 
         SetPage("books", "Sửa thông tin sách");
-        return View("BookForm", model);
+        return AdminView("BookForm", model);
     }
 
     [HttpPost("books/{id:int}/edit")]
@@ -88,7 +88,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         model.Id = id;
         await managementService.PopulateBookOptionsAsync(model, cancellationToken);
         SetPage("books", "Sửa thông tin sách");
-        return View("BookForm", model);
+        return AdminView("BookForm", model);
     }
 
     [HttpPost("books/{id:int}/availability")]
@@ -121,14 +121,14 @@ public sealed class AdminManagementController(IAdminManagementService management
     {
         SetPage("content", "Nội dung sách");
         var model = await managementService.GetContentAsync(tab, cancellationToken);
-        return View(model);
+        return AdminView("Content", model);
     }
 
     [HttpGet("authors/new")]
     public IActionResult NewAuthor()
     {
         SetPage("content", "Thêm tác giả");
-        return View("AuthorForm", new AdminAuthorFormViewModel());
+        return AdminView("AuthorForm", new AdminAuthorFormViewModel());
     }
 
     [HttpPost("authors/new")]
@@ -150,7 +150,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         }
 
         SetPage("content", "Thêm tác giả");
-        return View("AuthorForm", model);
+        return AdminView("AuthorForm", model);
     }
 
     [HttpGet("authors/{id:int}/edit")]
@@ -163,7 +163,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         }
 
         SetPage("content", "Sửa tác giả");
-        return View("AuthorForm", model);
+        return AdminView("AuthorForm", model);
     }
 
     [HttpPost("authors/{id:int}/edit")]
@@ -192,7 +192,7 @@ public sealed class AdminManagementController(IAdminManagementService management
 
         model.Id = id;
         SetPage("content", "Sửa tác giả");
-        return View("AuthorForm", model);
+        return AdminView("AuthorForm", model);
     }
 
     [HttpPost("authors/{id:int}/delete")]
@@ -213,7 +213,7 @@ public sealed class AdminManagementController(IAdminManagementService management
     public IActionResult NewCategory()
     {
         SetPage("content", "Thêm thể loại");
-        return View("CategoryForm", new AdminCategoryFormViewModel());
+        return AdminView("CategoryForm", new AdminCategoryFormViewModel());
     }
 
     [HttpPost("categories/new")]
@@ -235,7 +235,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         }
 
         SetPage("content", "Thêm thể loại");
-        return View("CategoryForm", model);
+        return AdminView("CategoryForm", model);
     }
 
     [HttpGet("categories/{id:int}/edit")]
@@ -248,7 +248,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         }
 
         SetPage("content", "Sửa thể loại");
-        return View("CategoryForm", model);
+        return AdminView("CategoryForm", model);
     }
 
     [HttpPost("categories/{id:int}/edit")]
@@ -277,7 +277,7 @@ public sealed class AdminManagementController(IAdminManagementService management
 
         model.Id = id;
         SetPage("content", "Sửa thể loại");
-        return View("CategoryForm", model);
+        return AdminView("CategoryForm", model);
     }
 
     [HttpPost("categories/{id:int}/delete")]
@@ -299,7 +299,7 @@ public sealed class AdminManagementController(IAdminManagementService management
     {
         SetPage("content", "Thêm bài báo");
         var model = await managementService.GetArticleFormAsync(null, cancellationToken);
-        return View("ArticleForm", model);
+        return AdminView("ArticleForm", model);
     }
 
     [HttpPost("articles/new")]
@@ -322,7 +322,7 @@ public sealed class AdminManagementController(IAdminManagementService management
 
         await managementService.PopulateArticleBooksAsync(model, cancellationToken);
         SetPage("content", "Thêm bài báo");
-        return View("ArticleForm", model);
+        return AdminView("ArticleForm", model);
     }
 
     [HttpGet("articles/{id:int}/edit")]
@@ -335,7 +335,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         }
 
         SetPage("content", "Sửa bài báo");
-        return View("ArticleForm", model);
+        return AdminView("ArticleForm", model);
     }
 
     [HttpPost("articles/{id:int}/edit")]
@@ -365,7 +365,7 @@ public sealed class AdminManagementController(IAdminManagementService management
         model.Id = id;
         await managementService.PopulateArticleBooksAsync(model, cancellationToken);
         SetPage("content", "Sửa bài báo");
-        return View("ArticleForm", model);
+        return AdminView("ArticleForm", model);
     }
 
     [HttpPost("articles/{id:int}/delete")]
@@ -400,6 +400,9 @@ public sealed class AdminManagementController(IAdminManagementService management
         ViewData["AdminSection"] = section;
         ViewData["ShowAdminShell"] = true;
     }
+
+    private IActionResult AdminView(string viewName, object? model = null) =>
+        View($"~/Views/Admin/{viewName}.cshtml", model);
 
     private void AddSaveError(AdminSaveResult result, string? field = null)
     {
